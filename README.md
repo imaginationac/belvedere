@@ -10,7 +10,7 @@ An automated file manager for Windows
 
 See [LICENSE.txt](https://github.com/imaginationac/belvedere/blob/master/LICENSE.txt) for licensing details.
 
-#How to build the installer.
+### How to build the installer.
 
 1. Clone the repo: `git clone git://github.com/imaginationac/belvedere.git`
 2. Download and install [NSIS](http://prdownloads.sourceforge.net/nsis/nsis-2.46-setup.exe?download)
@@ -22,7 +22,7 @@ See [LICENSE.txt](https://github.com/imaginationac/belvedere/blob/master/LICENSE
 8. Compile /installer/install.nsi
 9. Make sure to test the installer.
 
-#How to run.
+### How to run.
 
 1. Download the installer -or-
 2. Install AutoHotkey and run Belvedere.ahk.

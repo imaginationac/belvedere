@@ -25,6 +25,7 @@
 SetWorkingDir ..
 buildDir = %A_WorkingDir%\build
 buildToolsDir = %A_WorkingDir%\build-tools
+buildToolsName = Belvedere Installer Build Tool
 installerDir = %A_WorkingDir%\installer
 helpProject = %A_WorkingDir%\help\Belvedere Help.hhp
 distDir = %A_WorkingDir%\dist
@@ -33,7 +34,7 @@ installerScript = %buildDir%\installer.nsi
 
 ; Load GUI
 SetWorkingDir %buildToolsDir%
-#Include build-welcome.ahk
+#Include build-GUI-welcome.ahk
 Return
 
 /*
