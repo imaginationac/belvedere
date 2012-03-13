@@ -1,9 +1,9 @@
-; Build script for Belvedere
-; Version 0.1.1
-; Author: Dorian Alexander Patterson <imaginationc@gmail.com>
-; Requires: AutoHotkey_L 1.1.07.01+
+; configure.ahk
+; Configures dependencies for the build script
 ;
 ; Copyright 2012 Dorian Alexander Patterson
+;
+; This is part of build.ahk.
 ;
 ; This program is free software: you can redistribute it and/or modify
 ; it under the terms of the GNU General Public License as published by
@@ -18,27 +18,12 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-; Set up build environment
-#NoEnv
-#SingleInstance ignore
-#NoTrayIcon
-SetWorkingDir ..
-buildDir = %A_WorkingDir%\build
-buildToolsDir = %A_WorkingDir%\build-tools
-buildToolsName = Belvedere Installer Build Tool
-installerDir = %A_WorkingDir%\installer
-helpProject = %A_WorkingDir%\help\Belvedere Help.hhp
-distDir = %A_WorkingDir%\dist
-executableName = Belvedere.exe
-installerScript = %buildDir%\installer.nsi
-
-; Check dependencies
 Dependencies := {ahk2exe: 0, hhc: 0, nsis: 0}
-; Default locations
-; 32-bit
-Defaults32 := {ahk2exe: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe" , hhc: "C:\Program Files\HTML Help Workshop\hhc.exe", makensis: "C:\Program Files\NSIS\makensis.exe"}
-; 64-bit
-Defaults64 := {ahk2exe: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe", hhc: "C:\Program Files (x86)\HTML Help Workshop\hhc.exe", makensis: "C:\Program Files (x86)\NSIS\makensis.exe"}
+ahk2exe := {DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe", DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Ahk2Exe.exe", RegistryValueName:}
+hhc := {DefaultLocation32: "C:\Program Files\HTML Help Workshop\hhc.exe", DefaultLocation64: "C:\Program Files (x86)\HTML Help Workshop\hhc.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components\28E7A37130464D115AF3000972A8B18B", RegistryValueName: "6EA51B6D250BE3636BBB4C17C4AB5690"}
+makensis := {DefaultLocation32: "C:\Program Files\NSIS\makensis.exe", DefaultLocation64: "C:\Program Files\NSIS\makensis.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS", RegistryValueName: "InstallLocation"}
+
+For key, value in Dependencies
 
 ; AutoHotkey script compiler.
 AHK:
@@ -122,28 +107,26 @@ Is64Bit() {
 	return RegexMatch(procID, "^[^ ]+64") > 0
 }
 
-FindDependencyDefault(Key)
+FindDependencyDefault(Array)
 {
 	If Is64Bit()
 	{
-		global Defaults64
-		IfExist Defaults64[Key]
+		IfExist Array.DefaultLocation64
 		{
-			return Defaults64[Key]
+			return Array.DefaultLocation64
 		}
 	}
 	Else
 	{
-		global Defaults32
-		IfExist Defaults32[Key]
+		IfExist Array.DefaultLocation32
 		{
-			return Defaults32[Key]
+			return Array.DefaultLocation32
 		}
 	}
 }
 
-FindDependencyRegistry(RootKey, SubKey)
+FindDependencyRegistry(Array)
 {
-	RegRead, OutputVar, %RootKey%, %SubKey%
+	RegRead, OutputVar, %RootKey%, %SubKey%, %ValueName%
 	Return OutputVar
 }
