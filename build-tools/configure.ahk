@@ -18,11 +18,58 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dependencies := {ahk2exe: 0, hhc: 0, nsis: 0}
-ahk2exe := {DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe", DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Ahk2Exe.exe", RegistryValueName:}
-hhc := {DefaultLocation32: "C:\Program Files\HTML Help Workshop\hhc.exe", DefaultLocation64: "C:\Program Files (x86)\HTML Help Workshop\hhc.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components\28E7A37130464D115AF3000972A8B18B", RegistryValueName: "6EA51B6D250BE3636BBB4C17C4AB5690"}
-makensis := {DefaultLocation32: "C:\Program Files\NSIS\makensis.exe", DefaultLocation64: "C:\Program Files\NSIS\makensis.exe", RegistryRootKey: "HKLM", RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS", RegistryValueName: "InstallLocation"}
+Dependencies := {ahk2exe: 0, hhc: 0, makensis: 0}
+ahk2exe := 	{ 	DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe"
+			,   DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe"
+			, 	RegistryRootKey: "HKLM"
+			, 	RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Ahk2Exe.exe"
+			, 	RegistryValueName:}
+hhc 	:= 	{	DefaultLocation32: "C:\Program Files\HTML Help Workshop\hhc.exe"
+			, 	DefaultLocation64: "C:\Program Files (x86)\HTML Help Workshop\hhc.exe"
+			, 	RegistryRootKey: "HKLM"
+			, 	RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UserData\S-1-5-18\Components\28E7A37130464D115AF3000972A8B18B"
+			, 	RegistryValueName: "6EA51B6D250BE3636BBB4C17C4AB5690"}
+makensis := {	DefaultLocation32: "C:\Program Files\NSIS\makensis.exe"
+			, 	DefaultLocation64: "C:\Program Files\NSIS\makensis.exe"
+			, 	RegistryRootKey: "HKLM"
+			, 	RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS"
+			, 	RegistryValueName: "InstallLocation"}
+ConfigFile = %A_WorkingDir%\build.ini
 
+; Check for a build.ini. Create an annotated boilerplate if one does not exist.
+IfNotExist, %ConfigFile%
+{
+	FileAppend, %ConfigFile% not found ... creating one now.`n, *
+	FileAppend, `; Configuration for build.ahk`n, %ConfigFile%
+	FileAppend, [compilers]`n, %ConfigFile%
+	FileAppend, ahk2exe=`n, %ConfigFile%
+	FileAppend, hhc=`n, %ConfigFile%
+	FileAppend, makensis=`n, %ConfigFile%
+}
+
+; If it already exist read from the configuration file
+Else
+{
+	FileAppend, %ConfigFile% found ... searching for listed dependencies.`n, *
+	For Key, Value in Dependencies
+	{
+		Filename = %ConfigFile%
+		Section = compilers
+		IniRead, CompilerLocation, %Filename%, %Section%, %Key%
+		FileAppend, % "Searching for " . key . " at " . CompilerLocation . " ... ", *
+		IfExist, %CompilerLocation%
+		{
+			FileAppend, found!`n, *
+			Dependencies[%key%] := CompilerLocation
+		}
+		Else
+		{
+			FileAppend, not found.`n, *
+		}
+	}
+}
+
+/*
 For key, value in Dependencies
 
 ; AutoHotkey script compiler.
