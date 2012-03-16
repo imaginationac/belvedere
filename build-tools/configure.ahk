@@ -18,8 +18,8 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dependencies := {compileahk: "", hhc: "", makensis: ""}
-DependencyCount = 3
+Dependencies := {ahk2exe: "", compileahk: "", hhc: "", makensis: ""}
+DependencyCount = 4
 ahk2exe := { 	DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe"
 			,   DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe"
 			, 	RegistryRootKey: "HKLM"
@@ -165,15 +165,15 @@ For Key, Value in Dependencies
 }
 
 ; If configuration is successful...
-If (Count == %DependencyCount%)
+If (Count == DependencyCount)
 {
 	FileAppend, Configuration successful!`n, *
 }
 Else
 {
 	FileAppend, Configuration incomplete. Please download the necessary dependencies.`n, *
+	ExitApp, 1
 }
-Return
 
 ; Function definitions.
 ; Detect CPU architecture
