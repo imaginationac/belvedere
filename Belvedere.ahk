@@ -2,7 +2,7 @@
  * * * Compile_AHK SETTINGS BEGIN * * *
 
 [AHK2EXE]
-Exe_File=%In_Dir%\Belvedere.exe
+Exe_File=%In_Dir%\build\Belvedere.exe
 No_UPX=1
 NoDecompile=1
 Created_Date=1
