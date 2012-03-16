@@ -18,12 +18,18 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dependencies := {ahk2exe: "", hhc: "", makensis: ""}
+Dependencies := {compileahk: "", hhc: "", makensis: ""}
+DependencyCount = 3
 ahk2exe := { 	DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe"
 			,   DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe"
 			, 	RegistryRootKey: "HKLM"
 			, 	RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Ahk2Exe.exe"
 			, 	RegistryValueName: ""}
+compileahk := { DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Compile_AHK.exe"
+			,	DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Compile_AHK.exe"
+			,	RegistryRootKey: "HKLM"
+			,	RegistrySubKey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Ahk2Exe.exe"
+			,	RegistryValueName: ""}
 hhc 	:= 	{	DefaultLocation32: "C:\Program Files\HTML Help Workshop\hhc.exe"
 			, 	DefaultLocation64: "C:\Program Files (x86)\HTML Help Workshop\hhc.exe"
 			, 	RegistryRootKey: "HKLM"
@@ -35,6 +41,7 @@ makensis := {	DefaultLocation32: "C:\Program Files\NSIS\makensis.exe"
 			, 	RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS"
 			, 	RegistryValueName: "InstallLocation"}
 ConfigFile = build.ini
+
 ; Check for a build.ini. Create an annotated boilerplate if one does not exist.
 FileAppend, % "Searching for " . ConfigFile . " ... ", *
 IfNotExist, %ConfigFile%
@@ -42,9 +49,10 @@ IfNotExist, %ConfigFile%
 	FileAppend, not found ... creating one now.`n, *
 	FileAppend, `; Configuration for build.ahk`n, %ConfigFile%
 	FileAppend, [compilers]`n, %ConfigFile%
-	FileAppend, ahk2exe=`n, %ConfigFile%
-	FileAppend, hhc=`n, %ConfigFile%
-	FileAppend, makensis=`n, %ConfigFile%
+	For Key, Value in Dependencies
+	{
+		FileAppend, %Key%=`n, %ConfigFile%
+	}
 }
 
 ; If it already exists read from the configuration file
@@ -111,8 +119,15 @@ For Key, Value in Dependencies
 	ValueName := %Key%.RegistryValueName
 	RegRead, CompilerLocation, %RootKey%, %SubKey%, %ValueName%
 
-	; The regesitry value for makensis only has the path to the executable, 
-	; not the full file name. Append the rest.
+	; Compile_AHK doesn't set a registry value for its installation directory. By default, it should be in the same
+	; directory as ahk2exe. Use Splitpath to to remove the file name and then append the correct file name.
+	If (%Key% == compileahk)
+	{
+		Splitpath, CompilerLocation, , CompilerLocation
+		CompilerLocation := CompilerLocation . "\Compile_AHK.exe"
+	}
+
+	; The regesitry value for makensis only has the path to the executable not the full file name. Append the rest.
 	If (%key% == makensis)
 	{
 		CompilerLocation := CompilerLocation . "\makensis.exe"
@@ -124,6 +139,7 @@ For Key, Value in Dependencies
 	}
 }
 
+Summary:
 ; Summary of configuration.
 Loop 80
 {
@@ -140,10 +156,24 @@ For Key, Value in Dependencies
 		Count ++
 	}
 }
-If (Count == 3)
+
+; Write known dependencies to configuration file.
+For Key, Value in Dependencies
 {
-	FileAppend, Configuration successful!`n,
+	Section = compilers
+	IniWrite, %Value%, %ConfigFile%, compilers, %key%
 }
+
+; If configuration is successful...
+If (Count == %DependencyCount%)
+{
+	FileAppend, Configuration successful!`n, *
+}
+Else
+{
+	FileAppend, Configuration incomplete. Please download the necessary dependencies.`n, *
+}
+Return
 
 ; Function definitions.
 ; Detect CPU architecture
