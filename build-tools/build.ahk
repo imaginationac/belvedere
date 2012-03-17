@@ -1,5 +1,5 @@
 ; Build script for Belvedere
-; Version 0.2.0
+; Version 0.2.1
 ; Author: Dorian Alexander Patterson <imaginationc@gmail.com>
 ; Requires: AutoHotkey_L 1.1.07.01+
 ;
@@ -34,3 +34,73 @@ installerScript = %buildDir%\installer.nsi
 
 SetWorkingDir, %buildToolsDir%
 #Include configure.ahk
+
+; After configuration, actually build things.
+SetWorkingDir, ..
+; Clean old build files.
+IfExist, %BuildDir%
+{
+	FileAppend, Clean old build files...`n, *
+	FileRemoveDir, %BuildDir%, 1
+}
+; Create build directory.
+try
+{
+	FileAppend, Creating build directory: %BuildDir%`n, *
+	FileCreateDir, %BuildDir%
+}
+catch e
+{
+	FileAppend, Could not create the build directory. Check your permissions.`n, *
+	ExitApp, 1
+}
+
+; Compile executable.
+FileAppend, Building Belvedere.exe...`n, *
+; 64-Bit workaround. Compile_AHK doesn't play nice. Use ahk2exe directly.
+if (Is64Bit())
+{
+	try
+	{
+		Program := Dependencies.ahk2exe
+		Target = %Program% /in %A_WorkingDir%\Belvedere.ahk
+		RunWait, %Target%
+	}
+	catch e
+	{
+		FileAppend, Could not build Belvedere.exe. Check your permissions.`n, *
+		ExitApp, 1
+	}
+}
+; 32-bit. Use Compile_AHK.
+else
+{
+	try
+	{
+		Program := Dependencies.compileahk
+		Target = %Program% /auto %A_WorkingDir%\Belvedere.ahk
+		RunWait, %Target%
+	}
+	catch e
+	{
+		FileAppend, Could not build Belvedere.exe. Check your permissions.`n, *
+		ExitApp, 1
+	}
+}
+
+; Move executable to build folder.
+FileMove, %A_WorkingDir%\%executableName%, %BuildDir%
+
+; Compile help.
+FileAppend, Building help...`n, *
+try
+{
+	Program := Dependencies.hhc
+	Target = "%Program%" "%helpProject%"
+	RunWait, %Target%
+}
+catch e
+{
+	FileAppend, Could not build help. Check your permissions.`n, *
+	ExitApp, 1
+}
