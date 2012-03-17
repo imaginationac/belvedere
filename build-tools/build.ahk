@@ -88,7 +88,7 @@ else
 	}
 }
 
-; Move executable to build folder.
+; Move executable to build directory.
 FileMove, %A_WorkingDir%\%executableName%, %BuildDir%
 
 ; Compile help.
@@ -103,4 +103,26 @@ catch e
 {
 	FileAppend, Could not build help. Check your permissions.`n, *
 	ExitApp, 1
+}
+
+; Copy installer files to build directory.
+try
+{
+	FileCopy, %InstallerDir%\*.*, %BuildDir%\*.*
+}
+catch e
+{
+	FileAppend, Could not copy installation files. Check your permissions.`n, *
+	ExitApp, 1
+}
+
+/*
+OnExit:
+If (%A_ExitReason% == Error)
+{
+	MsgBox, Unable to compile the installer. Please check the logs.
+}
+Else
+{
+	MsgBox, Installer compiled successfully!`nYou can find the installer in %distDir%.
 }
