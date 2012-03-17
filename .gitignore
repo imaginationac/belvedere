@@ -1,5 +1,6 @@
 *.chm
 *.exe
+*.ini
 build/
 dist/
-rules.ini
+belvedere.sublime-workspace
