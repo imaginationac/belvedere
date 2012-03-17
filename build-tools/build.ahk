@@ -1,5 +1,5 @@
 ; Build script for Belvedere
-; Version 0.2.1
+; Version 0.3.0
 ; Author: Dorian Alexander Patterson <imaginationc@gmail.com>
 ; Requires: AutoHotkey_L 1.1.07.01+
 ;
@@ -116,13 +116,26 @@ catch e
 	ExitApp, 1
 }
 
-/*
+; Compile the installer.
+FileAppend, Building installer...`n, *
+try
+{
+	Program := Dependencies.makensis
+	Target = "%Program%" /V4 /PAUSE "%InstallerScript%" 
+	RunWait, %Target%
+}
+catch e
+{
+	FileAppend, Could not build installer. Check your permissions.`n, *
+	ExitApp, 1
+}
+
 OnExit:
-If (%A_ExitReason% == Error)
+If (A_ExitReason == "Error")
 {
 	MsgBox, Unable to compile the installer. Please check the logs.
 }
 Else
 {
-	MsgBox, Installer compiled successfully!`nYou can find the installer in %distDir%.
+	MsgBox, Installer compiled successfully!`nYou can find the installer in %distDir%
 }
