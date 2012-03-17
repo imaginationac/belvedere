@@ -1,5 +1,5 @@
 ; Build script for Belvedere
-; Version 0.3.0
+; Version 0.3.1
 ; Author: Dorian Alexander Patterson <imaginationc@gmail.com>
 ; Requires: AutoHotkey_L 1.1.07.01+
 ;
@@ -121,7 +121,7 @@ FileAppend, Building installer...`n, *
 try
 {
 	Program := Dependencies.makensis
-	Target = "%Program%" /V4 /PAUSE "%InstallerScript%" 
+	Target = "%Program%" /V4 "%InstallerScript%" 
 	RunWait, %Target%
 }
 catch e
