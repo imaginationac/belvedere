@@ -18,8 +18,8 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Dependencies := {ahk2exe: "", compileahk: "", hhc: "", makensis: ""}
-DependencyCount = 4
+Dependencies := {ahk2exe: "", compileahk: "", hhc: "", makensis: "", killproc: ""}
+DependencyCount = 5
 ahk2exe := { 	DefaultLocation32: "C:\Program Files\AutoHotKey\Compiler\Ahk2Exe.exe"
 			,   DefaultLocation64: "C:\Program Files (x86)\AutoHotKey\Compiler\Ahk2Exe.exe"
 			, 	RegistryRootKey: "HKLM"
@@ -40,6 +40,11 @@ makensis := {	DefaultLocation32: "C:\Program Files\NSIS\makensis.exe"
 			, 	RegistryRootKey: "HKLM"
 			, 	RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS"
 			, 	RegistryValueName: "InstallLocation"}
+killproc := {	DefaultLocation32: "C:\Program Files\NSIS\Plugins\KillProc.dll"
+			,	DefaultLocation64: "C:\Program Files (x86)\NSIS\Plugins\KillProc.dll"
+			,	RegistryRootKey: "HKLM"
+			,	RegistrySubKey: "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\NSIS"
+			,	RegistryValueName: "InstallLocation"}			
 ConfigFile = build.ini
 
 ; Check for a build.ini. Create an annotated boilerplate if one does not exist.
@@ -127,16 +132,30 @@ For Key, Value in Dependencies
 		CompilerLocation := CompilerLocation . "\Compile_AHK.exe"
 	}
 
-	; The regesitry value for makensis only has the path to the executable not the full file name. Append the rest.
+	; The registry value for makensis only has the path to the executable not the full file name. Append the rest.
 	If (%key% == makensis)
 	{
 		CompilerLocation := CompilerLocation . "\makensis.exe"
 	}
 
+	; Use the registry value for NSIS and append the plugin directory and path for KillProc
+	If (%key% == killproc)
+	{
+		CompilerLocation := CompilerLocation . "\Plugins\KillProc.dll"
+	}
+
+	FileAppend, % "Searching for " . key . " at " . CompilerLocation . " ... ", *
+
 	IfExist, %CompilerLocation%
 	{
 		Dependencies[key] := CompilerLocation
+		FileAppend, found!`n, *
 	}
+	Else
+	{
+		FileAppend, not found.`n, *
+	}
+
 }
 
 Summary:
