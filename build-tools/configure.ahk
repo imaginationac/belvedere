@@ -51,12 +51,12 @@ ConfigFile = build.ini
 FileAppend, % "Searching for " . ConfigFile . " ... ", *
 IfNotExist, %ConfigFile%
 {
-	FileAppend, not found ... creating one now.`n, *
-	FileAppend, `; Configuration for build.ahk`n, %ConfigFile%
-	FileAppend, [compilers]`n, %ConfigFile%
+	FileAppend, % "not found ... creating one now.`n", *
+	FileAppend, % "`; Configuration for build.ahk`n", %ConfigFile%
+	FileAppend, % "[compilers]`n", %ConfigFile%
 	For Key, Value in Dependencies
 	{
-		FileAppend, %Key%=`n, %ConfigFile%
+		FileAppend, % Key . "=`n", %ConfigFile%
 	}
 }
 

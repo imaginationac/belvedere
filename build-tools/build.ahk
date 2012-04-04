@@ -57,35 +57,16 @@ catch e
 
 ; Compile executable.
 FileAppend, Building Belvedere.exe...`n, *
-; 64-Bit workaround. Compile_AHK doesn't play nice. Use ahk2exe directly.
-if (Is64Bit())
+try
 {
-	try
-	{
-		Program := Dependencies.ahk2exe
-		Target = %Program% /in %A_WorkingDir%\Belvedere.ahk
-		RunWait, %Target%
-	}
-	catch e
-	{
-		FileAppend, Could not build Belvedere.exe. Check your permissions.`n, *
-		ExitApp, 1
-	}
+	Program := Dependencies.compileahk
+	Target = %Program% /auto %A_WorkingDir%\Belvedere.ahk
+	RunWait, %Target%
 }
-; 32-bit. Use Compile_AHK.
-else
+catch e
 {
-	try
-	{
-		Program := Dependencies.compileahk
-		Target = %Program% /auto %A_WorkingDir%\Belvedere.ahk
-		RunWait, %Target%
-	}
-	catch e
-	{
-		FileAppend, Could not build Belvedere.exe. Check your permissions.`n, *
-		ExitApp, 1
-	}
+	FileAppend, Could not build Belvedere.exe. Check your permissions.`n, *
+	ExitApp, 1
 }
 
 ; Move executable to build directory.
